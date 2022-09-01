@@ -63,8 +63,10 @@ class Master:
             input()  # To catch the exit key 'enter'
             self.launch_game(self.current)
         except KeyboardInterrupt:
-            print(f"\n{Colors.red}Exit the hard way, I guess.{Colors.reset}")
-            cursor.show()
+            print(f"\n\n{Colors.red}Exit the hard way, I guess.{Colors.reset}")
+
+        cursor.show()
+        exit()
 
     def launch_game(self, i: int):
         cursor.show()
