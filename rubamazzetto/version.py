@@ -1,4 +1,4 @@
-__version__ = "a0.0.1"
+__version__ = "b0.1.0"
 __updated__ = "01/09/2022"
 
 if __name__ == '__main__':

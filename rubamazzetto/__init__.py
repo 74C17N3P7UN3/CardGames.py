@@ -1,5 +1,5 @@
-from .game import Rubamazzetto
+from .game import Game
 
 __all__ = (
-    "Rubamazzetto"
+    "Game"
 )
