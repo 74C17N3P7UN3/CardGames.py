@@ -25,13 +25,14 @@ class Game:
 
         # Technical variables
         self.table = []
+        self.table_cards = 0
         self.valuables = ["A", "2", "3"]
         self.last_discard = ""
         self.objective = ""
         self.objective_discarded = 0
 
         # Statistics
-        self.total_moves = 0
+        self.total_discards = 0
         self.total_pickups = 0
 
         # Generation of deck
@@ -59,14 +60,15 @@ class Game:
             print(f"\n█ Args available:")
             print(f"{Colors.lc}█  --help: shows this prompt")
             print(f"{Colors.lc}█  --version: shows the game's version")
-            print(f"{Colors.lb}█  --verbose: prints out every move")
+            print(f"{Colors.lb}█  --autopilot: the game discards for you (sick.)")
+            print(f"{Colors.lb}█  --no-verbose: removes the printing of every move")
             print(f"\n{Colors.green}█ Run without args to play with default settings")
             print(f"{Colors.green}█ To play with modified settings, use the following syntax:")
             print(f"{Colors.red}█ python .\\master.py --rubamazzetto [--args]")
-            print(f"\n{Colors.red}█ Example usage: .\\master.py --rubamazzetto --verbose")
+            print(f"\n{Colors.red}█ Example usage: .\\master.py --rubamazzetto --autopilot")
             exit()
         elif self.args[0] == "--version" or self.args[0] == "--v":
-            print(f"{Colors.red}█ Version: {__version__}")
+            print(f"{Colors.green}█ Version: {__version__}")
             print(f"{Colors.green}█ Updated: {__updated__}")
             exit()
 
@@ -158,8 +160,7 @@ class Game:
                     self.prompt("Playing", f"{self.playing.name}, press 'enter' to discard.", Colors.yellow)
                 self.discard()  # The current player discards a card
                 if self.last_discard in self.valuables:  # If he responds with a valuable:
-                    self.switch_player()  # Switch player,
-                    self.objective = self.last_discard  # Set the new objective and continue
+                    self.change_objective()  # Set the new objective and continue
                 elif self.objective == "":  # If he responds with a non-valuable and there is no objective:
                     self.switch_player()  # Just switch player
                 else:  # If he responds with a non-valuable but there is an objective:
@@ -169,8 +170,15 @@ class Game:
                 if len(self.playing.deck) != 0:
                     self.switch_player()
                 self.take_table()
-            self.dialog("Console", f"{self.playing.name} wins.", Colors.magenta)
-            # TODO: Cool finish screen featuring stats
+
+            self.dialog("Console", f"Game Over!", Colors.lb, nl=True)
+            self.dialog("Stats", f"Total discards: {self.total_discards}", Colors.yellow)
+            self.dialog("Stats", f"Total pickups: {self.total_pickups}", Colors.yellow)
+            self.dialog("Stats", f"{self.p1.name}'s pickups: {self.p1.pickups}", Colors.yellow)
+            self.dialog("Stats", f"{self.p2.name}'s pickups: {self.p2.pickups}", Colors.yellow)
+
+            self.print_winner()
+            self.prompt("Exit", f"Press 'enter' to exit.", Colors.red)
         except KeyboardInterrupt:
             print(f"\n\n{Colors.red}Exit the hard way, I guess.{Colors.reset}")
 
@@ -210,7 +218,7 @@ class Game:
         self.switch_player()
 
     def discard(self):
-        self.total_pickups += 1  # For ending screen statistics
+        self.total_discards += 1  # For ending screen statistics
         self.last_discard = self.playing.deck.pop(0)
         self.table.append(self.last_discard)
         if self.verbose:
@@ -224,18 +232,35 @@ class Game:
             self.playing = self.p1
 
     def take_table(self):
-        self.playing.pickups += 1  # For ending screen statistics
         self.reset_objective()
-        table_cards = len(self.table)
+        self.total_pickups += 1  # For ending screen statistics
+        self.playing.pickups += 1  # For ending screen statistics
+        self.table_cards = len(self.table)
         self.playing.deck.extend(self.table)
         self.table = []
-        cards_status = f"[{Colors.green}" \
-                       f"{'|' * math.floor(len(self.playing.deck) / 2)}" \
+        cards_status = f"{self.calc_bars_spacing()}[{Colors.green}" \
+                       f"{'|' * math.floor(len(self.p1.deck) / 2)}" \
                        f"{Colors.red}" \
-                       f"{'|' * (20 - math.floor(len(self.playing.deck) / 2))}" \
+                       f"{'|' * math.ceil(len(self.p2.deck) / 2)}" \
                        f"{Colors.lb}] " \
-                       f"{len(self.playing.deck)}/{40 - len(self.playing.deck)}"
-        self.dialog("Console", f"{self.playing.name} picked up {table_cards} cards. {cards_status}", Colors.lb)
+                       f"{len(self.p1.deck)}/{len(self.p2.deck)}"
+        self.dialog("Console", f"{self.playing.name} picked up {self.table_cards} cards. {cards_status}", Colors.lb)
+
+    def calc_bars_spacing(self) -> str:
+        longer = self.p1
+        if len(self.p2.name) > len(self.p1.name):
+            longer = self.p2
+
+        difference = abs(len(self.p1.name) - len(self.p2.name))
+
+        if self.playing == longer:
+            if self.table_cards > 9:
+                return ""
+            return " "
+        else:
+            if self.table_cards > 9:
+                return f"{' ' * difference}"
+            return f" {' ' * difference}"
 
     @staticmethod
     def dialog(action: str,
@@ -260,3 +285,15 @@ class Game:
                nl: bool = False) -> str:
 
         return input(self.dialog(action, text, color_before, color_after, nl, True)).lower()
+
+    def print_winner(self):
+        text = f"\n{Colors.lb}█ {Colors.white}["
+        to_colored_text = "Winner"
+        for i in range(len(to_colored_text)):
+            text += f"{color_list[i % len(color_list)]}{to_colored_text[i]}"
+        text += f"{Colors.white}] "
+        to_colored_text = self.playing.name + " takes the crown!"
+        for i in range(len(to_colored_text)):
+            text += f"{color_list[i % len(color_list)]}{to_colored_text[i]}"
+
+        print(text)

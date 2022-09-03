@@ -1,5 +1,5 @@
-__version__ = "b0.1.1"
-__updated__ = "01/09/2022"
+__version__ = "v1.0.0"
+__updated__ = "03/09/2022"
 
 if __name__ == '__main__':
     print(f"Version: {__version__}")
