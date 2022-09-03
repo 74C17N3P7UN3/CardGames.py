@@ -1,8 +1,16 @@
 # Python Packages
 from colorama import init, Style, Fore
 
-# Initialize colorama ANSI filter for Win32
-init()
+init()  # Initialize colorama ANSI filter for Win32
+
+color_list = [
+    Fore.MAGENTA,
+    Fore.RED,
+    Fore.YELLOW,
+    Fore.GREEN,
+    Fore.CYAN,
+    Fore.BLUE
+]
 
 
 class Colors:

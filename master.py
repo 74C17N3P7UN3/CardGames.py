@@ -31,7 +31,7 @@ class Master:
             print(f"{Colors.red}█ python .\\master.py [--gameName] [--gameArgs]")
             print(f"\n{Colors.yellow}█ To get the games list, use '--list' instead of [--gameName]")
             print(f"{Colors.yellow}█ To get game-specific args, use '--help' after [--gameName]")
-            print(f"\n{Colors.red}█ Example usage: .\\master.py --rubamazzetto --verbose")
+            print(f"\n{Colors.red}█ Example usage: .\\master.py --rubamazzetto --autopilot")
             exit()
         elif self.args[0] == "--version" or self.args[0] == "--v":
             print(f"{Colors.green}█ Version: {__version__}")
