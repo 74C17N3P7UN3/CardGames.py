@@ -109,5 +109,5 @@ class Master:
 
 # ------------------------------------------------ Main Entry Point -------------------------------------------------- #
 if __name__ == '__main__':
-    Master = Master()  # OS Object
-    Master.main()  # Run Program
+    Master = Master()  # Launcher Object
+    Master.main()  # Run Launcher

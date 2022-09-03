@@ -4,8 +4,8 @@ import math
 import random
 import sys
 # Custom Packages
-from .graphics import banner
 from utils import *
+from .graphics import banner
 from .version import __version__, __updated__
 
 
@@ -35,7 +35,7 @@ class Game:
         self.total_discards = 0
         self.total_pickups = 0
 
-        # Generation of deck
+        # Deck generation
         numbers = ["A", "2", "3", "4", "5", "6", "7", "F", "C", "R"]
         seeds = ["♥", "♦", "♣", "♠"]
         self.cards = []
@@ -246,22 +246,7 @@ class Game:
                        f"{len(self.p1.deck)}/{len(self.p2.deck)}"
         self.dialog("Console", f"{self.playing.name} picked up {self.table_cards} cards. {cards_status}", Colors.lb)
 
-    def calc_bars_spacing(self) -> str:
-        longer = self.p1
-        if len(self.p2.name) > len(self.p1.name):
-            longer = self.p2
-
-        difference = abs(len(self.p1.name) - len(self.p2.name))
-
-        if self.playing == longer:
-            if self.table_cards > 9:
-                return ""
-            return " "
-        else:
-            if self.table_cards > 9:
-                return f"{' ' * difference}"
-            return f" {' ' * difference}"
-
+    # --------------------------------------------- Printing Functions ----------------------------------------------- #
     @staticmethod
     def dialog(action: str,
                text: str,
@@ -285,6 +270,22 @@ class Game:
                nl: bool = False) -> str:
 
         return input(self.dialog(action, text, color_before, color_after, nl, True)).lower()
+
+    def calc_bars_spacing(self) -> str:
+        longer = self.p1
+        if len(self.p2.name) > len(self.p1.name):
+            longer = self.p2
+
+        difference = abs(len(self.p1.name) - len(self.p2.name))
+
+        if self.playing == longer:
+            if self.table_cards > 9:
+                return ""
+            return " "
+        else:
+            if self.table_cards > 9:
+                return f"{' ' * difference}"
+            return f" {' ' * difference}"
 
     def print_winner(self):
         text = f"\n{Colors.lb}█ {Colors.white}["
