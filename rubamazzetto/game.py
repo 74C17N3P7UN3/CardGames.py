@@ -1,5 +1,6 @@
 # Python Packages
 import cursor
+import math
 import random
 import sys
 # Custom Packages
@@ -20,7 +21,7 @@ class Game:
         # Arguments
         self.args = sys.argv[2:]
         self.autopilot = False
-        self.verbose = False
+        self.verbose = True
 
         # Technical variables
         self.table = []
@@ -73,8 +74,8 @@ class Game:
         for arg in self.args:
             if arg == "--autopilot":
                 self.autopilot = True
-            elif arg == "--verbose":
-                self.verbose = True
+            elif arg == "--no-verbose":
+                self.verbose = False
             else:
                 print(f"{Colors.red}█ Provided invalid argument: '{arg}'")
                 print(f"{Colors.lb}█ Try using '--help' first")
@@ -88,20 +89,30 @@ class Game:
             self.p1.name = self.prompt("Naming", "Insert Player1's name:", Colors.lb).capitalize()
             self.p2.name = self.prompt("Naming", "Insert Player2's name:", Colors.lb).capitalize()
             # ---------------------------------------------- Shuffling ----------------------------------------------- #
-            while True:  # Choose who starts
-                even_odd = self.prompt("Shuffling", f"{self.p1.name}, choose 'even' or 'odd':", Colors.green)
-                if even_odd == "even" or even_odd == "e":
-                    even_odd = 0
-                elif even_odd == "odd" or even_odd == "o":
-                    even_odd = 1
+            if self.autopilot:
+                even_odd = random.randint(0, 1)
+                if even_odd == 0:
+                    self.dialog("Shuffling", f"{self.playing.name} chose 'even'.", Colors.green)
                 else:
-                    self.dialog("Error", "Insert a valid option!", Colors.red)
-                    continue
-                break
-            if random.randint(0, 1) == even_odd:
+                    self.dialog("Shuffling", f"{self.playing.name} chose 'odd'.", Colors.green)
+            else:
+                while True:  # Choose who starts
+                    even_odd = self.prompt("Shuffling", f"{self.playing.name}, choose 'even' or 'odd':", Colors.green)
+                    if even_odd == "even" or even_odd == "e":
+                        even_odd = 0
+                    elif even_odd == "odd" or even_odd == "o":
+                        even_odd = 1
+                    else:
+                        self.dialog("Error", "Insert a valid option!", Colors.red)
+                        continue
+                    break
+            if random.randint(0, 1) == 0:
+                if even_odd == 1:
+                    self.switch_player()
                 self.dialog("Console", f"It's even. {self.playing.name} won!", Colors.magenta)
             else:
-                self.switch_player()
+                if even_odd == 0:
+                    self.switch_player()
                 self.dialog("Console", f"It's odd. {self.playing.name} won!", Colors.magenta)
 
             self.switch_player()  # The loser shuffles the cards
@@ -112,17 +123,21 @@ class Game:
             self.dialog("Console", f"{self.playing.name} shuffled the cards.", Colors.magenta)
             self.switch_player()
             # ----------------------------------------------- Cutting ------------------------------------------------ #
-            while True:  # The winner cuts the cards
-                cut = f"{self.playing.name}, choose how many cards to cut (Max 39):"
-                cut = self.prompt("Cutting", cut, Colors.green)
-                try:
-                    if 0 <= int(cut) < 40:
-                        cut = int(cut)
-                        break
-                except ValueError:
-                    pass
-                self.dialog("Error", "Insert a valid option!", Colors.red)
-                continue
+            if self.autopilot:
+                cut = random.randint(0, 39)
+                self.dialog("Cutting", f"{self.playing.name} cut {cut} cards.", Colors.green)
+            else:
+                while True:  # The winner cuts the cards
+                    cut = f"{self.playing.name}, choose how many cards to cut (Max 39):"
+                    cut = self.prompt("Cutting", cut, Colors.green)
+                    try:
+                        if 0 <= int(cut) < 40:
+                            cut = int(cut)
+                            break
+                    except ValueError:
+                        pass
+                    self.dialog("Error", "Insert a valid option!", Colors.red)
+                    continue
 
             for i in range(cut):
                 self.cards.append(self.cards.pop(0))
@@ -151,10 +166,11 @@ class Game:
                     self.check_objective()  # Check the game's logic
             # -------------------------------------------- Ending Screen --------------------------------------------- #
             if len(self.table) > 0:
-                self.switch_player()
+                if len(self.playing.deck) != 0:
+                    self.switch_player()
                 self.take_table()
             self.dialog("Console", f"{self.playing.name} wins.", Colors.magenta)
-            # TODO: Cool finish screen
+            # TODO: Cool finish screen featuring stats
         except KeyboardInterrupt:
             print(f"\n\n{Colors.red}Exit the hard way, I guess.{Colors.reset}")
 
@@ -185,13 +201,13 @@ class Game:
                 self.change_objective()  # Otherwise we change the objective and continue discarding
 
     def change_objective(self):
+        self.reset_objective()
         self.objective = self.last_discard
-        self.objective_discarded = 0
-        self.switch_player()
 
     def reset_objective(self):
         self.objective = ""
         self.objective_discarded = 0
+        self.switch_player()
 
     def discard(self):
         self.total_pickups += 1  # For ending screen statistics
@@ -207,14 +223,19 @@ class Game:
         else:
             self.playing = self.p1
 
-    # TODO: Cool bar indicating decks len
     def take_table(self):
+        self.playing.pickups += 1  # For ending screen statistics
         self.reset_objective()
-        self.switch_player()
-        self.playing.pickups += 1
-        self.dialog("Console", f"{self.playing.name} picked up {len(self.table)} cards.", Colors.lb)
+        table_cards = len(self.table)
         self.playing.deck.extend(self.table)
         self.table = []
+        cards_status = f"[{Colors.green}" \
+                       f"{'|' * math.floor(len(self.playing.deck) / 2)}" \
+                       f"{Colors.red}" \
+                       f"{'|' * (20 - math.floor(len(self.playing.deck) / 2))}" \
+                       f"{Colors.lb}] " \
+                       f"{len(self.playing.deck)}/{40 - len(self.playing.deck)}"
+        self.dialog("Console", f"{self.playing.name} picked up {table_cards} cards. {cards_status}", Colors.lb)
 
     @staticmethod
     def dialog(action: str,

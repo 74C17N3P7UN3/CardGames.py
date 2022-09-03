@@ -11,4 +11,4 @@ import sys
 # ----- Custom Packages ----- #
 from utils import *
 # ------ Game Packages ------ #
-from rubamazzetto import Game
+from rubamazzetto import Rubamazzetto

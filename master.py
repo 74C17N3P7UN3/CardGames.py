@@ -71,7 +71,7 @@ class Master:
     def launch_game(self, i: int):
         cursor.show()
         if self.games[i] == "rubamazzetto":
-            Game().main()
+            Rubamazzetto().main()
 
     # ----------------------------------- Logic for Game Selection with Arrow Keys ----------------------------------- #
     def select_game(self):
