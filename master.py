@@ -68,13 +68,13 @@ class Master:
         cursor.show()
         exit()
 
+    # -------------------------------------------------- Functions --------------------------------------------------- #
     def launch_game(self, i: int):
         cursor.show()
         if self.games[i] == "rubamazzetto":
             Rubamazzetto().main()
 
-    # ----------------------------------- Logic for Game Selection with Arrow Keys ----------------------------------- #
-    def select_game(self):
+    def select_game(self):  # Logic for the game selection on arrow keys press
         while True:
             if kb.is_pressed("up arrow"):
                 self.current -= 1
@@ -93,7 +93,7 @@ class Master:
         while kb.is_pressed("up arrow") or kb.is_pressed("down arrow"):
             continue
 
-    def update_selection(self):
+    def update_selection(self):  # Refreshes every time that the selection gets changed
         clear()
         print(master_banner)
         print(f"{self.game_space}╔═════════════════════════════╗")

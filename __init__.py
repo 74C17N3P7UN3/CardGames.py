@@ -1,4 +1,4 @@
-# CardGames.py: a lobby for the italian gamers
+# CardGames.py: a compilation of card games in python
 
 __title__ = "CardGames.py"
 __author__ = "TacitNeptune"
